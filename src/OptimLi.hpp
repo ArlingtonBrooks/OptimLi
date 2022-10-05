@@ -20,12 +20,24 @@
 
 extern "C"
 {
-/*
-dgesv_
-    Compute solution to a linear system
-    (external library)
-*/
-    void dgesv_(int *N, int *NRHS, double* A, int *LDA, int* IPIV, double* B, int *LDB, int *INFO);
+	/*
+	* dgesv_
+	* Compute solution to a linear system of equations
+	* (external library)
+	*/
+	void dgesv_(int *N, int *NRHS, double* A, int *LDA, int* IPIV, double* B, int *LDB, int *INFO);
+	/*
+	* dgeqrf_
+	* Compute a QR factorization of an M-by-N matrix given by A
+	* (external library)
+	*/
+	void dgeqrf_(int *M, int *N, double *A, int *LDA, double *TAU, double *WORK, int *LWORK, int *INFO);
+	/*
+	* dorgqr_
+	* Compute Q matrix from output of dgeqrf_
+	* (external library)
+	*/
+	void dorgqr_(int *M, int *N, int *K, double *A, int *LDA, double *TAU, double *WORK, int *LWORK, int *INFO);
 }
 
 /*
@@ -36,6 +48,8 @@ dgesv_
 
 //Optimality condition checker
 bool CheckTol(int NumParams, double* grad, double* step, double AbsTol, double RelTol);
+
+//QR Decomposition of a matrix
 
 //A standard Newton solver
 int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount);

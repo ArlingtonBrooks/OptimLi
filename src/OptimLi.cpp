@@ -36,7 +36,7 @@ RETURNS:
 */
 bool CheckTol(int NumParams, double* grad, double* step, double AbsTol, double RelTol)
 {
-	if (AbsTol <= 0.0 && RelTol <= 0.0)
+	if ((AbsTol <= 0.0 && RelTol <= 0.0) || (grad == 0 && step == 0))
 		return false;
 	
 	double ComputedRelTol = 0.0;
@@ -45,8 +45,69 @@ bool CheckTol(int NumParams, double* grad, double* step, double AbsTol, double R
 		ComputedRelTol += (grad == 0) ? 0.0 : grad[i]*grad[i];
 		ComputedAbsTol += (step == 0) ? 0.0 : step[i]*step[i];
 	}
-	return (((std::sqrt(ComputedRelTol) < RelTol && grad != 0) || grad == 0) &&
-		((std::sqrt(ComputedAbsTol) < AbsTol && step != 0) || step == 0));
+	return (((std::sqrt(ComputedRelTol) < RelTol && grad != 0) || grad == 0 || RelTol == 0.0) &&
+		((std::sqrt(ComputedAbsTol) < AbsTol && step != 0) || step == 0 || AbsTol == 0.0));
+}
+
+/*
+QRDecomp
+	A function which computes the QR decomposition of a given SQUARE matrix
+	*N:	Square matrix dimension
+	*A:	Matrix to be decomposed
+	*Q:	Output Q matrix (must be pre-allocated)
+	*R:	Output R matrix (must be pre-allocated)
+
+NOTES:
+	This modifies the original A matrix as per the LAPACK implementation.  
+RETURNS:
+	true:	QR decomposition was successful
+	false:	An illegal value was detected
+*/
+bool QRDecompSqr(int N, double* A, double* Q, double* R)
+{
+	int LDA = N;
+	double *NewA = new double[N*N]();
+	__builtin_memcpy(NewA,A,sizeof(double)*N*N);
+	double TAU[N];
+	double *work = new double[N*N];
+	int LWORK = -1;
+	int INFO = 0;
+
+	//QR Decomposition
+	dgeqrf_(&N, &N, NewA, &LDA, TAU, work, &LWORK, &INFO);
+	LWORK = (int)work[0];
+	delete[] work;
+	work = new double[LWORK];
+	dgeqrf_(&N, &N, NewA, &LDA, TAU, work, &LWORK, &INFO);
+	if (INFO != 0)
+		goto ENDFUNC;
+
+	//Get R and Q matrices
+	if (R) {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				if (j >= i)
+					R[i + j*N] = NewA[i + j*N];
+				else
+					R[i + j*N] = 0.0;
+			}
+		}
+	}
+	if (Q) {
+		LWORK = -1;
+		dorgqr_(&N, &N, &N, NewA, &LDA, TAU, work, &LWORK, &INFO);
+		LWORK = (int)work[0];
+		delete[] work;
+		work = new double[LWORK];
+		dorgqr_(&N, &N, &N, NewA, &LDA, TAU, work, &LWORK, &INFO);
+		__builtin_memcpy(Q,NewA,sizeof(double)*N*N);
+	}
+
+	//Cleanup
+	ENDFUNC:
+	delete[] work;
+	delete[] NewA;
+	return (INFO != 0);
 }
 
 /*
@@ -62,6 +123,7 @@ FMIN_NewtonSolver
 	*RelTol:  Relative tolerance to stop iterating (set to 0 to prefer absolute)
 	*MaxIter: Maximum number of iterations to perform
 	*IterCount: Running counter for number of iterations performed (optional)
+	*OrthoNormalize: if true, orthonormalize Hessian matrix for better convergence
 NOTES:
 	*If AbsTol and RelTol are both zero, solver will run until MaxIter iterations.
 RETURNS:
@@ -71,7 +133,7 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
-int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
+int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount, bool OrthoNormalize)
 {
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
@@ -161,6 +223,7 @@ FMIN_SweepNewtonSolver
 	*RelTol:  Relative tolerance to stop iterating (set to 0 to prefer absolute)
 	*MaxIter:   Maximum number of iterations to perform
 	*IterCount: Running counter for number of iterations performed (optional)
+	*OrthoNormalize: if true, orthonormalize Hessian matrix for better convergence
 NOTES:
 	*If AbsTol and RelTol are both zero, solver will run until MaxIter iterations.
 RETURNS:
@@ -170,7 +233,7 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
-int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
+int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount, bool OrthoNormalize)
 {
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
@@ -327,6 +390,7 @@ FMIN_DampNewtonSolver
 	*MaxIter: Maximum number of iterations to perform
 	*MaxStep: Maximum step size (for damping)
 	*IterCount: Running counter for number of iterations performed (optional)
+	*OrthoNormalize: if true, orthonormalize Hessian matrix for better convergence
 NOTES:
 	*If AbsTol and RelTol are both zero, solver will run until MaxIter iterations.
 RETURNS:
@@ -336,7 +400,7 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
-int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, double MaxStep, unsigned* IterCount)
+int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, double MaxStep, unsigned* IterCount, bool OrthoNormalize)
 {
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)

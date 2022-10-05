@@ -48,6 +48,37 @@ void ddF(double* ret, double* x, void* params)
 //An example implementation which performs an optimization of the given functions with each solver type.
 int main(int argc, char** argv) 
 {
+	//QR TEST
+	double A[9] = {1.0,1.0,0.0,
+			1.0,1.0,0.0,
+			0.0,0.0,1.0};
+	double Q[9];
+	double R[9];
+	int N = 3;
+	int M = 3;
+	QRDecompSqr(N,A,Q,R);
+	printf("A = [");
+	for (int i = 0; i < N; i++){
+		for (int j = 0; j < M; j++)
+			printf("%lg, ",A[i + j*N]);
+		printf(";\n");
+	}
+	printf("]\n");
+	printf("Q = [");
+	for (int i = 0; i < M; i++) {
+		for (int j = 0; j < M; j++)
+			printf("%lg, ",Q[i + j*N]);
+		printf("\n");
+	}
+	printf("R = [");
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++)
+			printf("%lg, ",R[i + j*M]);
+		printf(";\n");
+	}
+	printf("\n");
+	return 0;
+
 	double inputs[2] = {3.0,3.0};
 	paramspec apar {0.0,0.10};
 	unsigned testval;
