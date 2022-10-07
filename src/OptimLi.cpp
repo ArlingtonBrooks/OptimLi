@@ -133,7 +133,7 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
-int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount, bool OrthoNormalize)
+int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
 {
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
@@ -148,8 +148,7 @@ int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(do
 
 	//Optimization Loop
 	LOOP:
-		for (int j = 0; j < NumParams; j++)
-			OldParams[j] = params[j];
+		__builtin_memcpy(OldParams,params,sizeof(double)*NumParams);
 		//Evaluate Function, gradient, and hessian
 		fval = (feval)(params,args);
 		(grad)(gradval,params,args);
@@ -164,8 +163,7 @@ int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(do
 		int INFO;
 
 		//Compute step
-		for (int j = 0; j < NumParams; j++)
-			stepval[j] = gradval[j];
+		__builtin_memcpy(stepval,gradval,sizeof(double)*NumParams);
 
 		try {dgesv_(&N,&NRHS,hessval,&LDA,IPIV,stepval,&LDB,&INFO);}
 		catch (...) {throw INFO;}
@@ -233,7 +231,7 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
-int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount, bool OrthoNormalize)
+int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
 {
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
@@ -253,8 +251,7 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 
 	//Optimization Loop
 	LOOP:
-		for (int j = 0; j < NumParams; j++)
-			OldParams[j] = params[j];
+		__builtin_memcpy(OldParams,params,sizeof(double)*NumParams);
 		//Evaluate Function, gradient, and hessian
 		fval = (feval)(params,args);
 		(grad)(gradval,params,args);
@@ -269,8 +266,7 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 		int INFO;
 
 		//Compute step
-		for (int j = 0; j < NumParams; j++)
-			stepval[j] = gradval[j];
+		__builtin_memcpy(stepval,gradval,sizeof(double)*NumParams);
 
 		try {dgesv_(&N,&NRHS,hessval,&LDA,IPIV,stepval,&LDB,&INFO);}
 		catch (...) {throw INFO;}
@@ -300,8 +296,7 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 				params[j] = OldParams[j] + direction*factor*stepval[j];
 			fnewval2 = (feval)(params,args);
 			if (isnan(fnewval2) || isinf(fnewval2)) {
-				for (int j = 0; j < NumParams; j++)
-					params[j] = OldParams[j];
+				__builtin_memcpy(params,OldParams,sizeof(double)*NumParams);
 				Increasing = false;
 				factor = factor * 0.5;
 				continue;
@@ -400,7 +395,7 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
-int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, double MaxStep, unsigned* IterCount, bool OrthoNormalize)
+int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, double MaxStep, unsigned* IterCount)
 {
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
@@ -420,8 +415,7 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 
 	//Optimization Loop
 	LOOP:
-		for (int j = 0; j < NumParams; j++)
-			OldParams[j] = params[j];
+		__builtin_memcpy(OldParams,params,sizeof(double)*NumParams);
 		//Evaluate Function, gradient, and hessian
 		fval = (feval)(params,args);
 		(grad)(gradval,params,args);
@@ -436,8 +430,7 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 		int INFO;
 
 		//Compute step
-		for (int j = 0; j < NumParams; j++)
-			stepval[j] = gradval[j];
+		__builtin_memcpy(stepval,gradval,sizeof(double)*NumParams);
 
 		try {dgesv_(&N,&NRHS,hessval,&LDA,IPIV,stepval,&LDB,&INFO);}
 		catch (...) {throw INFO;}
