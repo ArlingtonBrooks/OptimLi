@@ -550,7 +550,7 @@ int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double
 		}
 		mag = sqrt(mag);
 		ParamSize = sqrt(ParamSize);
-		double StepSize = (tol < ParamSize) ? tol : ParamSize;
+		double StepSize = (tol > ParamSize) ? tol : ParamSize;
 		//ParamSize-length step
 		for (int j = 0; j < NumParams; j++) {
 			stepval[j] = -StepSize*gradval[j]/mag;
