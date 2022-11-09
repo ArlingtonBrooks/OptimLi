@@ -139,7 +139,6 @@ int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(do
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
 		return 3;
 	
-	double fval;
 	double gradval[NumParams];
 	double stepval[NumParams];
 	double hessval[NumParams*NumParams];
@@ -150,7 +149,7 @@ int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(do
 	LOOP:
 		__builtin_memcpy(OldParams,params,sizeof(double)*NumParams);
 		//Evaluate Function, gradient, and hessian
-		fval = (feval)(params,args);
+		//fval = (feval)(params,args);
 		(grad)(gradval,params,args);
 		(hess)(hessval,params,args);
 
@@ -236,11 +235,6 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
 		return 3;
-
-	//Determine whether to compute tolerance
-	bool ComputeTol = true;
-	if (AbsTol == 0.0 && RelTol == 0)
-		ComputeTol = false;
 	
 	double fval;
 	double gradval[NumParams];
@@ -272,7 +266,6 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 		catch (...) {throw INFO;}
 
 		//Step Restriction
-		bool FirstStep = true;
 		double StepSize = 0.0;
 		for (int j = 0; j < NumParams; j++)
 			StepSize += stepval[j]*stepval[j];
@@ -400,13 +393,7 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
 		return 3;
-
-	//Determine whether to compute tolerance
-	bool ComputeTol = true;
-	if (AbsTol == 0.0 && RelTol == 0)
-		ComputeTol = false;
 	
-	double fval;
 	double gradval[NumParams];
 	double stepval[NumParams];
 	double hessval[NumParams*NumParams];
@@ -417,7 +404,7 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 	LOOP:
 		__builtin_memcpy(OldParams,params,sizeof(double)*NumParams);
 		//Evaluate Function, gradient, and hessian
-		fval = (feval)(params,args);
+		//fval = (feval)(params,args);
 		(grad)(gradval,params,args);
 		(hess)(hessval,params,args);
 
@@ -512,11 +499,6 @@ int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double
 	//Check for valid input
 	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL)
 		return 3;
-
-	//Determine whether to compute tolerance
-	bool ComputeTol = true;
-	if (AbsTol == 0.0 && RelTol == 0.0)
-		ComputeTol = false;
 	
 	double fval;
 	double gradval[NumParams];
