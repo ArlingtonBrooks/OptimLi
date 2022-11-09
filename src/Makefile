@@ -5,7 +5,7 @@ LIBFLAGS=--shared
 Target=OptimLi
 
 $(Target): $(Target).cpp
-	mkdir BUILD
+	mkdir -p BUILD
 	$(CXX) $(CXXFLAGS) $(Target).cpp -o $(Target).o
 	$(CXX) $(LIBFLAGS) -o lib$(Target).so $(Target).o
 	mv lib$(Target).so BUILD/
