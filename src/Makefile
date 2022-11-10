@@ -2,13 +2,19 @@ CXX=gcc
 CXXFLAGS=-fPIC -c -O3 -march=native
 LIBFLAGS=--shared
 
-Target=OptimLi
+Target = liboptimli.so
+BASENAME = liboptimli
+SRCS = OptimLi.cpp
 
-$(Target): $(Target).cpp
+library: $(Target)
+
+all: $(Target) test
+
+$(Target): 
 	mkdir -p BUILD
-	$(CXX) $(CXXFLAGS) $(Target).cpp -o $(Target).o
-	$(CXX) $(LIBFLAGS) -o lib$(Target).so $(Target).o
-	mv lib$(Target).so BUILD/
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $(BASENAME).o
+	$(CXX) $(LIBFLAGS) -o $(BASENAME).so $(BASENAME).o
+	cp $(BASENAME).so BUILD/
 
 test:
 	g++ -fsanitize=address -O0 -lblas -lcblas -llapack Test.cpp
