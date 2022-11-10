@@ -22,4 +22,5 @@ test:
 clean:
 	rm -rf BUILD
 	rm -f a.out
-	rm -f $(Target).o
+	rm -f $(BASENAME).o
+	rm -f $(BASENAME).so
