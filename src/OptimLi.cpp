@@ -133,6 +133,10 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
+int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter)
+{
+	return FMIN_NewtonSolver(NumParams, params, args, feval, grad, hess, AbsTol, RelTol, MaxIter, 0);
+}
 int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
 {
 	//Check for valid input
@@ -230,6 +234,10 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
+int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter) 
+{
+	return FMIN_SweepNewtonSolver(NumParams, params, args, feval, grad, hess, AbsTol, RelTol, MaxIter, 0);
+}
 int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
 {
 	//Check for valid input
@@ -388,6 +396,10 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero for both newton and gradient step)
 	*3: Ambiguous input
 */
+int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, double MaxStep) 
+{
+	return FMIN_DampNewtonSolver(NumParams, params, args, feval, grad, hess, AbsTol, RelTol, MaxIter, MaxStep, 0);
+}
 int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, double MaxStep, unsigned* IterCount)
 {
 	//Check for valid input
@@ -494,6 +506,10 @@ RETURNS:
 	*2: Solution is not proceeding (step size is less than machine zero)
 	*3: Ambiguous input
 */
+int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter) 
+{
+	return FMIN_Gradient(NumParams, params, args, feval, grad, hess, AbsTol, RelTol, MaxIter, 0);
+}
 int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
 {
 	//Check for valid input
