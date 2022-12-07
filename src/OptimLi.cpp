@@ -140,7 +140,7 @@ int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(do
 int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
 {
 	//Check for valid input
-	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
+	if (NumParams <= 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
 		return 3;
 	
 	double gradval[NumParams];
@@ -241,7 +241,7 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
 {
 	//Check for valid input
-	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
+	if (NumParams <= 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
 		return 3;
 	
 	double fval;
@@ -403,7 +403,7 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, double MaxStep, unsigned* IterCount)
 {
 	//Check for valid input
-	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
+	if (NumParams <= 0 || params == NULL || feval == NULL || grad == NULL || hess == NULL)
 		return 3;
 	
 	double gradval[NumParams];
@@ -513,7 +513,7 @@ int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double
 int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double*,void*), void grad(double*,double*,void*), void hess(double*,double*,void*), double AbsTol, double RelTol, unsigned MaxIter, unsigned* IterCount)
 {
 	//Check for valid input
-	if (NumParams < 0 || params == NULL || feval == NULL || grad == NULL)
+	if (NumParams <= 0 || params == NULL || feval == NULL || grad == NULL)
 		return 3;
 	
 	double fval;
