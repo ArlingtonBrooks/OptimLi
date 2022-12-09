@@ -157,6 +157,12 @@ int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(do
 		(grad)(gradval,params,args);
 		(hess)(hessval,params,args);
 
+		//Evaluate convergence before doing anything
+		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
+			return 0;
+		else if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
+			return 0;
+		
 		//Setup LAPACK variables
 		int IPIV[NumParams*NumParams];
 		int N = NumParams;
@@ -259,6 +265,12 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 		(grad)(gradval,params,args);
 		(hess)(hessval,params,args);
 
+		//Evaluate convergence before doing anything
+		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
+			return 0;
+		else if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
+			return 0;
+		
 		//Setup LAPACK variables
 		int IPIV[NumParams*NumParams];
 		int N = NumParams;
@@ -360,9 +372,6 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 			FMIN_Gradient(NumParams,params,args,feval,grad,NULL,0.0,0.0,0);
 		}
 
-		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
-			return 0;
-
 		i++;
 		if (IterCount)
 			*IterCount = i;
@@ -420,6 +429,12 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 		(grad)(gradval,params,args);
 		(hess)(hessval,params,args);
 
+		//Evaluate convergence before doing anything
+		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
+			return 0;
+		else if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
+			return 0;
+
 		//Setup LAPACK variables
 		int IPIV[NumParams*NumParams];
 		int N = NumParams;
@@ -472,9 +487,6 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 
 		if (!HasStepped)
 			return 2;
-
-		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
-			return 0;
 
 		i++;
 		if (IterCount)
@@ -535,6 +547,12 @@ int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double
 		fval = (feval)(params,args);
 		(grad)(gradval,params,args);
 
+		//Evaluate convergence before doing anything
+		if (i > 0 && CheckTol(NumParams,gradval,stepval,AbsTol,RelTol))
+			return 0;
+		else if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
+			return 0;
+
 		//NAN check
 		if (isnan(fval) || isinf(fval))
 			return 2;
@@ -594,9 +612,6 @@ int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double
 		if (!HasStepped) {
 			return 2;
 		}
-
-		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
-			return 0;
 
 		i++;
 		if (IterCount)
