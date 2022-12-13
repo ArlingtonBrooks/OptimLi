@@ -149,6 +149,11 @@ int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(do
 	unsigned i = 0;
 	double OldParams[NumParams];
 
+	(grad)(gradval,params,args);
+	//Evaluate convergence before doing anything
+	if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
+		return 0;
+
 	//Optimization Loop
 	LOOP:
 		__builtin_memcpy(OldParams,params,sizeof(double)*NumParams);
@@ -156,12 +161,6 @@ int FMIN_NewtonSolver(int NumParams, double* params, void* args, double feval(do
 		//fval = (feval)(params,args);
 		(grad)(gradval,params,args);
 		(hess)(hessval,params,args);
-
-		//Evaluate convergence before doing anything
-		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
-			return 0;
-		else if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
-			return 0;
 		
 		//Setup LAPACK variables
 		int IPIV[NumParams*NumParams];
@@ -257,6 +256,11 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 	unsigned i = 0;
 	double OldParams[NumParams];
 
+	(grad)(gradval,params,args);
+	//Evaluate convergence before doing anything
+	if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
+		return 0;
+
 	//Optimization Loop
 	LOOP:
 		__builtin_memcpy(OldParams,params,sizeof(double)*NumParams);
@@ -264,12 +268,6 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 		fval = (feval)(params,args);
 		(grad)(gradval,params,args);
 		(hess)(hessval,params,args);
-
-		//Evaluate convergence before doing anything
-		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
-			return 0;
-		else if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
-			return 0;
 		
 		//Setup LAPACK variables
 		int IPIV[NumParams*NumParams];
@@ -371,7 +369,8 @@ int FMIN_SweepNewtonSolver(int NumParams, double* params, void* args, double fev
 		if (!HasStepped) {
 			FMIN_Gradient(NumParams,params,args,feval,grad,NULL,0.0,0.0,0);
 		}
-
+		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
+			return 0;
 		i++;
 		if (IterCount)
 			*IterCount = i;
@@ -421,6 +420,11 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 	unsigned i = 0;
 	double OldParams[NumParams];
 
+	(grad)(gradval,params,args);
+	//Evaluate convergence before doing anything
+	if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
+		return 0;
+
 	//Optimization Loop
 	LOOP:
 		__builtin_memcpy(OldParams,params,sizeof(double)*NumParams);
@@ -428,12 +432,6 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 		//fval = (feval)(params,args);
 		(grad)(gradval,params,args);
 		(hess)(hessval,params,args);
-
-		//Evaluate convergence before doing anything
-		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
-			return 0;
-		else if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
-			return 0;
 
 		//Setup LAPACK variables
 		int IPIV[NumParams*NumParams];
@@ -487,7 +485,8 @@ int FMIN_DampNewtonSolver(int NumParams, double* params, void* args, double feva
 
 		if (!HasStepped)
 			return 2;
-
+		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
+			return 0;
 		i++;
 		if (IterCount)
 			*IterCount = i;
@@ -541,17 +540,16 @@ int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double
 	ParamSize = std::sqrt(ParamSize);
 	double tol = 1.0;
 
+	(grad)(gradval,params,args);
+	//Evaluate convergence before doing anything
+	if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
+		return 0;
+
 	//Optimization Loop
 	LOOP:
 		//Evaluate Function, gradient, and hessian
 		fval = (feval)(params,args);
 		(grad)(gradval,params,args);
-
-		//Evaluate convergence before doing anything
-		if (i > 0 && CheckTol(NumParams,gradval,stepval,AbsTol,RelTol))
-			return 0;
-		else if (CheckTol(NumParams,gradval,NULL,0.0,RelTol))
-			return 0;
 
 		//NAN check
 		if (isnan(fval) || isinf(fval))
@@ -612,7 +610,8 @@ int FMIN_Gradient(int NumParams, double* params, void* args, double feval(double
 		if (!HasStepped) {
 			return 2;
 		}
-
+		if (CheckTol(NumParams,gradval,stepval,AbsTol,RelTol) && i > 0)
+			return 0;
 		i++;
 		if (IterCount)
 			*IterCount = i;
